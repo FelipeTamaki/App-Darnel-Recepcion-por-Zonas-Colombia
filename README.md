@@ -43,7 +43,7 @@ Pedido Darnel
 
 ## Archivos del repositorio
 ```
-├── app.py              # Aplicación Streamlit
+├── app_1.py              # Aplicación Streamlit
 ├── requirements.txt    # Dependencias
 └── README.md
 ```
@@ -53,7 +53,7 @@ Pedido Darnel
 1. Hacer fork o clonar este repositorio en GitHub
 2. Ir a [share.streamlit.io](https://share.streamlit.io)
 3. Conectar la cuenta de GitHub y seleccionar el repositorio
-4. Seleccionar `app.py` como archivo principal
+4. Seleccionar `app_1.py` como archivo principal
 5. Click en **Deploy**
 
 ## Correr localmente
