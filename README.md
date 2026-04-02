@@ -1,69 +1,103 @@
-# 📦 Procesador de Pedidos Darnel
+# 📦 Recepción por Zonas
 
 🔗 **[Abrir aplicación](https://app-darnel-recepcion-por-zonas-colombia.streamlit.app/)**
 
-App web para cruzar notas de pedido Darnel con el catálogo interno de Pilarica y generar un reporte Excel agrupado por zona.
+App web con dos herramientas para gestionar la recepción de mercadería agrupada por zona de almacenamiento. Al ingresar, podés elegir cuál usar.
 
-## ¿Qué hace?
+---
 
-1. Lee el archivo de pedido Darnel (`.xlsx`) — soporta pedidos con uno o múltiples bloques de productos
-2. Cruza cada producto con el catálogo interno usando la hoja **ABM ART. DEPURADO** como puente entre el código Darnel y el código Pilarica
-3. Obtiene la **zona** y la **cantidad por pallet** desde la hoja **RESUMEN**
-4. Genera un Excel descargable agrupado por zona con totales
+## 🗂️ Funcionalidades
 
-## Columnas del reporte generado
+### 🌎 1 — Pedidos Darnel (Colombia)
+
+Cruzá un pedido Darnel con el catálogo interno de Pilarica y generá un reporte Excel agrupado por zona.
+
+**Cómo funciona:**
+
+1. Subís el pedido Darnel (`.xlsx`) — soporta uno o múltiples bloques de productos
+2. Subís el catálogo Pilarica (`.xlsx`) con las hojas `ABM ART. DEPURADO` y `RESUMEN`
+3. La app cruza cada producto en dos pasos:
+
+```
+Pedido Darnel
+  └── Código Darnel  →  ABM ART. DEPURADO (Articulo Formularios)
+                              └── Código Pilarica  →  RESUMEN
+                                                          └── Zona + Cant por Pallet
+```
+
+4. Descargás el Excel con el reporte agrupado por zona
+
+**Columnas del reporte:**
 
 | Columna | Descripción |
 |---|---|
 | Zona | Zona de almacenamiento |
-| Código Darnel | Código del proveedor (del pedido) |
+| Código Darnel | Código del proveedor |
 | Código Pilarica | Código interno |
 | Descripción | Nombre del artículo |
-| Cant x Un Empaque | Cantidad que llega (del pedido) |
-| Uds/Pallet | Unidades que entran por pallet |
+| Cant x Un Empaque | Cantidad recibida |
+| Uds/Pallet | Unidades por pallet |
 | Pallets | Cant x Un Empaque ÷ Uds/Pallet |
 
-## Inputs requeridos
+---
 
-| Archivo | Descripción |
+### 🗂️ 2 — Notas de Pedido ZAPLAST
+
+Procesá una o varias Notas de Pedido en PDF y generá el reporte por zona automáticamente. El Masterdata ya está integrado en la app, no hace falta subir nada más.
+
+**Cómo funciona:**
+
+1. Subís uno o más PDFs de Notas de Pedido ZAPLAST (formato estándar)
+2. La app extrae de cada PDF: cliente, número de pedido, código de artículo, descripción y cantidad
+3. Cruza cada artículo con el `Masterdata.xlsx` (embebido en el repo) por código — con fallback por nombre si el código no matchea
+4. Obtiene la **zona** y la **cantidad por pallet** del Masterdata
+5. Descargás el Excel con el reporte agrupado por zona
+
+**Columnas del reporte:**
+
+| Columna | Descripción |
 |---|---|
-| **Pedido Darnel** | Nota de pedido `.xlsx` (puede tener múltiples bloques de productos) |
-| **Catálogo Pilarica** | Excel de stock/zonas con las hojas `ABM ART. DEPURADO 23.02.2025` y `RESUMEN` |
+| Zona | Zona de almacenamiento |
+| Código Artículo | Código ZAPLAST |
+| Descripción | Nombre del artículo |
+| Cliente | Razón social del cliente |
+| Cantidad | Unidades pedidas |
+| Uds/Pallet | Unidades por pallet (del Masterdata) |
+| Pallets | Cantidad ÷ Uds/Pallet |
 
-## Cómo funciona el match entre archivos
+---
 
-Los códigos del pedido Darnel y los códigos internos de Pilarica son distintos. El cruce se hace en dos pasos:
-```
-Pedido Darnel
-  └── Código Darnel (columna "ID ARTICULO")
-        └── ABM ART. DEPURADO (columna "Articulo Formularios")
-              └── Código Pilarica (columna "Articulo")
-                    └── RESUMEN → Zona + Cant por Pallet
-```
+## 📁 Archivos del repositorio
 
-## Archivos del repositorio
 ```
-├── app_1.py              # Aplicación Streamlit
-├── requirements.txt    # Dependencias
+├── app.py               # Aplicación Streamlit (hub con ambas funcionalidades)
+├── Masterdata.xlsx      # Masterdata ZAPLAST embebido (usado por la func. 2)
+├── requirements.txt     # Dependencias
 └── README.md
 ```
 
-## Deploy en Streamlit Cloud
+---
 
-1. Hacer fork o clonar este repositorio en GitHub
+## 🚀 Deploy en Streamlit Cloud
+
+1. Clonar o forkear este repositorio
 2. Ir a [share.streamlit.io](https://share.streamlit.io)
 3. Conectar la cuenta de GitHub y seleccionar el repositorio
-4. Seleccionar `app_1.py` como archivo principal
+4. Seleccionar `app.py` como archivo principal
 5. Click en **Deploy**
 
-## Correr localmente
+## 💻 Correr localmente
+
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## Dependencias
+## 📦 Dependencias
 
-- `streamlit`
-- `pandas`
-- `openpyxl`
+```
+streamlit
+pandas
+openpyxl
+pdfplumber
+```
