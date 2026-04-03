@@ -3,11 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Darnel | Recepción por Zonas</title>
-    <meta
-      name="description"
-      content="Elegí entre Pedidos Darnel y Notas de Pedido ZAPLAST."
-    />
+    <title>Darnel | Suite de Herramientas</title>
+    <meta name="description" content="Suite de herramientas Darnel para recepción por zonas." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,45 +14,40 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
+    <nav class="top-nav">
+      <div class="nav-inner">
+        <a class="nav-brand" href="/index.html">
+          <img src="/assets/darnel-logo.jpg" alt="Darnel" class="nav-logo" />
+          <span>Suite Darnel</span>
+        </a>
+      </div>
+    </nav>
+
     <div class="app-shell">
-      <header class="screen-header">
-        <div class="brand-lockup">
-          <img src="/assets/darnel-logo.jpg" alt="Darnel" class="brand-logo" />
-          <div class="brand-copy">
-            <p class="eyebrow">Darnel Operations</p>
-            <h1>Recepción por Zonas</h1>
-            <p>Seleccioná la herramienta que necesitás usar.</p>
-          </div>
-        </div>
+      <header class="page-header">
+        <p class="eyebrow">Darnel Operations</p>
+        <h1 class="page-title">Recepción por Zonas</h1>
+        <p class="page-desc">Seleccioná la herramienta que necesitás usar.</p>
       </header>
 
-      <div class="section-divider"></div>
-
-      <div class="selection-grid">
-        <article class="choice-card">
-          <p class="choice-meta">Herramienta 01</p>
-          <div class="choice-icon" aria-hidden="true">🌎</div>
-          <h2>Pedidos Darnel - Colombia</h2>
-          <p>
-            Cruzá un pedido Darnel (.xlsx) con el catálogo Pilarica y generá el reporte Excel
-            agrupado por zona.
-          </p>
-          <span class="choice-foot">Pedido + catálogo + salida Excel</span>
-          <a class="choice-action choice-link" href="/darnel.html">Ir a Darnel</a>
-        </article>
-
-        <article class="choice-card">
-          <p class="choice-meta">Herramienta 02</p>
-          <div class="choice-icon" aria-hidden="true">🗂️</div>
-          <h2>Notas de Pedido ZAPLAST</h2>
-          <p>
-            Subí uno o más PDFs de Notas de Pedido ZAPLAST y descargá el reporte por zona con
-            pallets calculados.
-          </p>
-          <span class="choice-foot">Carga múltiple + agrupación por zona</span>
-          <a class="choice-action choice-link" href="/zaplast.html">Ir a ZAPLAST</a>
-        </article>
-      </div>
+      <nav class="tool-list" aria-label="Herramientas disponibles">
+        <a href="/darnel.html" class="tool-row">
+          <div class="tool-row-icon">🌎</div>
+          <div class="tool-row-info">
+            <strong>Pedidos Darnel — Colombia</strong>
+            <span>Cruzá un pedido con el catálogo Pilarica y generá el reporte agrupado por zona.</span>
+          </div>
+          <span class="tool-row-arrow">→</span>
+        </a>
+        <a href="/zaplast.html" class="tool-row">
+          <div class="tool-row-icon">🗂️</div>
+          <div class="tool-row-info">
+            <strong>Notas de Pedido ZAPLAST</strong>
+            <span>Subí uno o más PDFs y descargá el reporte de pallets agrupado por zona.</span>
+          </div>
+          <span class="tool-row-arrow">→</span>
+        </a>
+      </nav>
     </div>
   </body>
 </html>
