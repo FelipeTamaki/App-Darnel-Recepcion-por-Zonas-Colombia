@@ -1,4 +1,4 @@
-# Recepción por Zonas | Darnel
+# Recepción por Zonas | Darnel 
 
 Aplicación web para generar reportes Excel de recepción por zona con dos flujos:
 
