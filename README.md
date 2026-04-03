@@ -1,102 +1,67 @@
-# 📦 Recepción por Zonas
+# Recepción por Zonas | Darnel 
 
-🔗 **[Abrir aplicación](https://app-darnel-recepcion-por-zonas-colombia.streamlit.app/)**
+Aplicación web para generar reportes Excel de recepción por zona con dos flujos:
 
-App web con dos herramientas para gestionar la recepción de mercadería agrupada por zona de almacenamiento. Al ingresar, podés elegir cuál usar.
+1. `Pedidos Darnel`
+   Cruza un pedido Darnel con el catálogo Pilarica y arma el reporte agrupado por zona.
+2. `Notas de Pedido ZAPLAST`
+   Procesa uno o varios PDFs y genera el reporte usando `Masterdata.xlsx`.
 
----
+La lógica del Excel sigue en Python, pero ahora la interfaz está preparada para Vercel:
 
-## 🗂️ Funcionalidades
+- frontend estático en `public/`
+- API Python en `api/index.py`
+- preview web por pestañas que replica el contenido del workbook final
+- descarga directa del `.xlsx`
 
-### 🌎 1 — Pedidos Darnel (Colombia)
+## Estructura
 
-Cruzá un pedido Darnel con el catálogo interno de Pilarica y generá un reporte Excel agrupado por zona.
-
-**Cómo funciona:**
-
-1. Subís el pedido Darnel (`.xlsx`) — soporta uno o múltiples bloques de productos
-2. Subís el catálogo Pilarica (`.xlsx`) con las hojas `ABM ART. DEPURADO` y `RESUMEN`
-3. La app cruza cada producto en dos pasos:
-
-```
-Pedido Darnel
-  └── Código Darnel  →  ABM ART. DEPURADO (Articulo Formularios)
-                              └── Código Pilarica  →  RESUMEN
-                                                          └── Zona + Cant por Pallet
-```
-
-4. Descargás el Excel con el reporte agrupado por zona
-
-**Columnas del reporte:**
-
-| Columna | Descripción |
-|---|---|
-| Zona | Zona de almacenamiento |
-| Código Darnel | Código del proveedor |
-| Código Pilarica | Código interno |
-| Descripción | Nombre del artículo |
-| Cant x Un Empaque | Cantidad recibida |
-| Uds/Pallet | Unidades por pallet |
-| Pallets | Cant x Un Empaque ÷ Uds/Pallet |
-
----
-
-### 🗂️ 2 — Notas de Pedido ZAPLAST
-
-Procesá una o varias Notas de Pedido en PDF y generá el reporte por zona automáticamente. El Masterdata ya está integrado en la app, no hace falta subir nada más.
-
-**Cómo funciona:**
-
-1. Subís uno o más PDFs de Notas de Pedido ZAPLAST (formato estándar)
-2. La app extrae de cada PDF: cliente, número de pedido, código de artículo, descripción y cantidad
-3. Cruza cada artículo con el `Masterdata.xlsx` (embebido en el repo) por código — con fallback por nombre si el código no matchea
-4. Obtiene la **zona** y la **cantidad por pallet** del Masterdata
-5. Descargás el Excel con el reporte agrupado por zona
-
-**Columnas del reporte:**
-
-| Columna | Descripción |
-|---|---|
-| Zona | Zona de almacenamiento |
-| Código Artículo | Código ZAPLAST |
-| Descripción | Nombre del artículo |
-| Cliente | Razón social del cliente |
-| Cantidad | Unidades pedidas |
-| Uds/Pallet | Unidades por pallet (del Masterdata) |
-| Pallets | Cantidad ÷ Uds/Pallet |
-
----
-
-## 📁 Archivos del repositorio
-
-```
-├── app.py               # Aplicación Streamlit (hub con ambas funcionalidades)
-├── Masterdata.xlsx      # Masterdata ZAPLAST embebido (usado por la func. 2)
-├── requirements.txt     # Dependencias
-└── README.md
+```text
+├── api/
+│   └── index.py
+├── public/
+│   ├── app.js
+│   ├── styles.css
+│   └── assets/
+│       └── darnel-logo.jpg
+├── shared_logic.py
+├── Masterdata.xlsx
+├── vercel.json
+├── requirements.txt
+└── app_1.py
 ```
 
----
+`app_1.py` queda como referencia de la versión anterior en Streamlit. El flujo nuevo recomendado es el de Vercel.
 
-## 🚀 Deploy en Streamlit Cloud
+## Deploy en Vercel
 
-1. Clonar o forkear este repositorio
-2. Ir a [share.streamlit.io](https://share.streamlit.io)
-3. Conectar la cuenta de GitHub y seleccionar el repositorio
-4. Seleccionar `app.py` como archivo principal
-5. Click en **Deploy**
+1. Subí el repo a GitHub.
+2. En Vercel, importá el repositorio.
+3. No hace falta `build command`.
+4. Vercel detecta:
+   - archivos estáticos en `public/`
+   - función Python en `api/index.py`
+5. Deploy.
 
-## 💻 Correr localmente
+El archivo `vercel.json` ya deja configuradas las rutas para que:
+
+- `/` sirva el frontend
+- `/api/process/darnel` procese pedidos Darnel
+- `/api/process/zaplast` procese PDFs ZAPLAST
+
+## Desarrollo local
 
 ```bash
 pip install -r requirements.txt
-streamlit run app.py
+flask --app api/index.py run
 ```
 
-## 📦 Dependencias
+Después abrí [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
-```
-streamlit
+## Dependencias
+
+```text
+Flask
 pandas
 openpyxl
 pdfplumber

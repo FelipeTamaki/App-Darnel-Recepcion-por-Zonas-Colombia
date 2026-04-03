@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Darnel | Notas ZAPLAST</title>
+    <meta
+      name="description"
+      content="Procesá notas de pedido ZAPLAST y descargá el reporte agrupado por zona."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body data-tool="zaplast">
+    <div class="app-shell">
+      <a class="back-link choice-link" href="/index.html">← Volver al inicio</a>
+
+      <section class="tool-stage">
+        <header class="stage-header">
+          <div class="stage-brand">
+            <img src="/assets/darnel-logo.jpg" alt="Darnel" class="stage-brand-logo" />
+            <span>Suite Darnel</span>
+          </div>
+          <div class="stage-title">
+            <span class="stage-icon" aria-hidden="true">🗂️</span>
+            <div>
+              <p class="eyebrow">Operación ZAPLAST</p>
+              <h2>Notas de Pedido ZAPLAST</h2>
+            </div>
+          </div>
+          <p>Subí uno o más PDFs y descargá el reporte agrupado por zona.</p>
+        </header>
+
+        <div class="section-divider"></div>
+
+        <form id="tool-form" class="upload-layout upload-layout-single">
+          <label class="upload-field">
+            <span class="field-label">Notas de Pedido (PDF) - Podés subir varios a la vez</span>
+            <div class="file-input-shell">
+              <input type="file" name="pdfs" accept=".pdf" multiple required />
+            </div>
+            <div class="file-selection" data-file-output="pdfs"></div>
+          </label>
+
+          <button id="submit-button" class="primary-action" type="submit">Procesar PDFs</button>
+        </form>
+      </section>
+
+      <div id="helper-note" class="helper-note">
+        Subí uno o más PDFs de Notas de Pedido ZAPLAST para habilitar el procesamiento.
+      </div>
+      <div id="status-banner" class="status-banner" hidden></div>
+
+      <section class="results-card" hidden>
+        <header class="results-head">
+          <p class="eyebrow">Resultado</p>
+          <h3>Vista previa del reporte</h3>
+        </header>
+        <div id="empty-state" class="empty-state">
+          <p class="empty-badge">Sin resultado todavía</p>
+          <h3>La vista previa aparece acá.</h3>
+          <p>
+            Cuando proceses archivos vas a ver el resumen general, las coincidencias pendientes,
+            las hojas del reporte y la descarga del Excel final.
+          </p>
+        </div>
+
+        <div id="results-shell" hidden>
+          <div class="stats-row" id="stats-row"></div>
+          <div class="zone-summary" id="zone-summary"></div>
+          <div class="warning-box" id="warning-box" hidden></div>
+
+          <div class="preview-toolbar">
+            <div class="sheet-tabs" id="sheet-tabs"></div>
+            <button class="download-action" id="download-button" type="button">
+              Descargar Excel
+            </button>
+          </div>
+
+          <div class="sheet-preview" id="sheet-preview"></div>
+        </div>
+      </section>
+    </div>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
