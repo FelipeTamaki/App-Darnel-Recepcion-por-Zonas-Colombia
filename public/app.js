@@ -24,9 +24,7 @@ if (config) {
 
 function initToolPage(configForTool) {
   const statusBanner = document.getElementById("status-banner");
-  const emptyState = document.getElementById("empty-state");
-  const resultsCard = document.querySelector(".results-card");
-  const resultsShell = document.getElementById("results-shell");
+  const resultsSection = document.getElementById("results-section");
   const statsRow = document.getElementById("stats-row");
   const zoneSummary = document.getElementById("zone-summary");
   const warningBox = document.getElementById("warning-box");
@@ -47,9 +45,8 @@ function initToolPage(configForTool) {
       configForTool,
       form,
       statusBanner,
-      emptyState,
-      resultsCard,
-      resultsShell,
+      downloadButton,
+      resultsSection,
       statsRow,
       zoneSummary,
       warningBox,
@@ -80,9 +77,8 @@ async function processForm({
   configForTool,
   form,
   statusBanner,
-  emptyState,
-  resultsCard,
-  resultsShell,
+  downloadButton,
+  resultsSection,
   statsRow,
   zoneSummary,
   warningBox,
@@ -97,6 +93,7 @@ async function processForm({
     return;
   }
 
+  downloadButton.hidden = true;
   setBusyState(submitButton, true, configForTool.pendingLabel);
   showStatus(statusBanner, configForTool.pendingLabel, "success");
 
@@ -114,9 +111,7 @@ async function processForm({
     state.activeSheetIndex = 0;
     renderResult({
       result: data,
-      emptyState,
-      resultsCard,
-      resultsShell,
+      resultsSection,
       statsRow,
       zoneSummary,
       warningBox,
@@ -125,11 +120,13 @@ async function processForm({
     });
     showStatus(
       statusBanner,
-      "Reporte generado correctamente. Ya podés revisar la vista previa y descargar el Excel.",
+      "Reporte generado correctamente. Ya podés revisar la vista previa.",
       "success",
     );
+    downloadButton.hidden = false;
   } catch (error) {
     showStatus(statusBanner, error.message, "error");
+    downloadButton.hidden = true;
   } finally {
     setBusyState(submitButton, false, configForTool.buttonLabel);
   }
@@ -166,18 +163,14 @@ function renderSelectedFiles(input, fileOutputs) {
 
 function renderResult({
   result,
-  emptyState,
-  resultsCard,
-  resultsShell,
+  resultsSection,
   statsRow,
   zoneSummary,
   warningBox,
   sheetTabs,
   sheetPreview,
 }) {
-  resultsCard.hidden = false;
-  emptyState.hidden = true;
-  resultsShell.hidden = false;
+  resultsSection.hidden = false;
   renderStats(statsRow, result.preview.summary, result.type);
   renderZoneSummary(zoneSummary, result.preview.zoneSummary);
   renderWarnings(warningBox, result.warnings);
