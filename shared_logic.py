@@ -68,6 +68,15 @@ COL_WIDTHS_Z = [8, 18, 35, 30, 12, 12, 10]
 _thin_d = Side(style="thin", color="B0C4DE")
 _BRD_D = Border(left=_thin_d, right=_thin_d, top=_thin_d, bottom=_thin_d)
 
+_RE_CLIENTE = re.compile(r"Cliente:\s*(.+)")
+_RE_CUENTA = re.compile(r"\s*Cuenta:\s*\d+.*")
+_RE_NRO_PEDIDO = re.compile(r"NOTA DE PEDIDO\s+Nro\.\s*(\d+)")
+_RE_ART_HEADER = re.compile(r"Art[íi]culo\s+Descripci[oó]n", re.IGNORECASE)
+_RE_BONIF = re.compile(r"Bonificaciones", re.IGNORECASE)
+_RE_ITEM = re.compile(
+    r"^\s*(\d+)\s+(.+?)\s+([\d\.]+,\d{4})\s+[\d,]+\s+[\d,\.]+\s+[\d,\.]+\s*$"
+)
+
 
 def darnel_leer_pedido(file_obj) -> list[dict]:
     wb = load_workbook(file_obj, read_only=True, data_only=True)
@@ -326,47 +335,44 @@ def zaplast_parse_pdf(file_bytes: bytes, filename: str) -> list[dict]:
     rows = []
     with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
         for page in pdf.pages:
-            text = page.extract_text()
+            text = page.extract_text(x_tolerance=3, y_tolerance=3)
             if not text:
                 continue
 
             lines = text.split("\n")
-            cliente = ""
-            for line in lines:
-                match = re.search(r"Cliente:\s*(.+)", line)
-                if match:
-                    cliente = re.sub(r"\s*Cuenta:\s*\d+.*", "", match.group(1)).strip()
-                    break
 
+            cliente = ""
             nro_pedido = ""
             for line in lines:
-                match = re.search(r"NOTA DE PEDIDO\s+Nro\.\s*(\d+)", line)
-                if match:
-                    nro_pedido = match.group(1)
+                if not cliente:
+                    m = _RE_CLIENTE.search(line)
+                    if m:
+                        cliente = _RE_CUENTA.sub("", m.group(1)).strip()
+                if not nro_pedido:
+                    m = _RE_NRO_PEDIDO.search(line)
+                    if m:
+                        nro_pedido = m.group(1)
+                if cliente and nro_pedido:
                     break
 
             in_items = False
             for line in lines:
-                if re.search(r"Artículo\s+Descripción", line, re.IGNORECASE):
+                if _RE_ART_HEADER.search(line):
                     in_items = True
                     continue
-                if re.search(r"Bonificaciones", line, re.IGNORECASE):
-                    in_items = False
-                    continue
+                if _RE_BONIF.search(line):
+                    break
                 if in_items:
-                    match = re.match(
-                        r"^\s*(\d+)\s+(.+?)\s+([\d\.]+,\d{4})\s+[\d,]+\s+[\d,\.]+\s+[\d,\.]+\s*$",
-                        line,
-                    )
-                    if match:
+                    m = _RE_ITEM.match(line)
+                    if m:
                         rows.append(
                             {
                                 "Nro Pedido": nro_pedido,
                                 "Cliente": cliente,
-                                "Código Artículo": int(match.group(1)),
-                                "Descripción": match.group(2).strip(),
+                                "Código Artículo": int(m.group(1)),
+                                "Descripción": m.group(2).strip(),
                                 "Cantidad": float(
-                                    match.group(3).replace(".", "").replace(",", ".")
+                                    m.group(3).replace(".", "").replace(",", ".")
                                 ),
                                 "Archivo PDF": filename,
                             }
