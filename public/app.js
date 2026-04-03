@@ -11,8 +11,8 @@ const toolConfig = {
     buttonLabel: "Procesar reporte",
   },
   zaplast: {
-    endpoint: "/api/process/zaplast",
-    pendingLabel: "Procesando PDFs...",
+    parseEndpoint: "/api/process/zaplast/parse",
+    generateEndpoint: "/api/process/zaplast/generate",
     buttonLabel: "Procesar PDFs",
   },
 };
@@ -41,18 +41,33 @@ function initToolPage(configForTool) {
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    processForm({
-      configForTool,
-      form,
-      statusBanner,
-      downloadButton,
-      resultsSection,
-      statsRow,
-      zoneSummary,
-      warningBox,
-      sheetTabs,
-      sheetPreview,
-    });
+    if (currentTool === "zaplast") {
+      processZaplast({
+        configForTool,
+        form,
+        statusBanner,
+        downloadButton,
+        resultsSection,
+        statsRow,
+        zoneSummary,
+        warningBox,
+        sheetTabs,
+        sheetPreview,
+      });
+    } else {
+      processForm({
+        configForTool,
+        form,
+        statusBanner,
+        downloadButton,
+        resultsSection,
+        statsRow,
+        zoneSummary,
+        warningBox,
+        sheetTabs,
+        sheetPreview,
+      });
+    }
   });
 
   downloadButton.addEventListener("click", () => {
@@ -123,6 +138,74 @@ async function processForm({
       "Reporte generado correctamente. Ya podés revisar la vista previa.",
       "success",
     );
+    downloadButton.hidden = false;
+  } catch (error) {
+    showStatus(statusBanner, error.message, "error");
+    downloadButton.hidden = true;
+  } finally {
+    setBusyState(submitButton, false, configForTool.buttonLabel);
+  }
+}
+
+async function processZaplast({
+  configForTool,
+  form,
+  statusBanner,
+  downloadButton,
+  resultsSection,
+  statsRow,
+  zoneSummary,
+  warningBox,
+  sheetTabs,
+  sheetPreview,
+}) {
+  const submitButton = form.querySelector('button[type="submit"]');
+  const files = [...(form.querySelector('input[type="file"]').files || [])];
+
+  if (files.length === 0) {
+    showStatus(statusBanner, "Seleccioná al menos un PDF antes de procesar.", "error");
+    return;
+  }
+
+  downloadButton.hidden = true;
+  setBusyState(submitButton, true, configForTool.buttonLabel);
+
+  try {
+    const allRows = [];
+
+    for (let i = 0; i < files.length; i++) {
+      showStatus(statusBanner, `Procesando archivo ${i + 1} de ${files.length}...`, "success");
+
+      const formData = new FormData();
+      formData.append("pdf", files[i]);
+
+      const parseResponse = await fetch(configForTool.parseEndpoint, {
+        method: "POST",
+        body: formData,
+      });
+      const parseData = await parseResponse.json();
+      if (!parseResponse.ok || !parseData.ok) {
+        throw new Error(parseData.error || `Error procesando ${files[i].name}`);
+      }
+      allRows.push(...parseData.rows);
+    }
+
+    showStatus(statusBanner, "Generando reporte...", "success");
+
+    const generateResponse = await fetch(configForTool.generateEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rows: allRows }),
+    });
+    const data = await generateResponse.json();
+    if (!generateResponse.ok || !data.ok) {
+      throw new Error(data.error || "No se pudo generar el reporte.");
+    }
+
+    state.result = data;
+    state.activeSheetIndex = 0;
+    renderResult({ result: data, resultsSection, statsRow, zoneSummary, warningBox, sheetTabs, sheetPreview });
+    showStatus(statusBanner, "Reporte generado correctamente. Ya podés revisar la vista previa.", "success");
     downloadButton.hidden = false;
   } catch (error) {
     showStatus(statusBanner, error.message, "error");

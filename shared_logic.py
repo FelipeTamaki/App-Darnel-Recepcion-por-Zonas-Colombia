@@ -380,15 +380,11 @@ def zaplast_parse_pdf(file_bytes: bytes, filename: str) -> list[dict]:
     return rows
 
 
-def zaplast_procesar(pdf_files: list[tuple[str, bytes]], masterdata: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
-    all_rows = []
-    for filename, file_bytes in pdf_files:
-        all_rows.extend(zaplast_parse_pdf(file_bytes, filename))
-
-    if not all_rows:
+def zaplast_merge(rows: list[dict], masterdata: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
+    if not rows:
         return pd.DataFrame(), []
 
-    df = pd.DataFrame(all_rows)
+    df = pd.DataFrame(rows)
     df = df.merge(
         masterdata[["Codigo", "ZONA", "Cantidad por Pallet", "ARTICULO_NORM"]],
         left_on="Código Artículo",
@@ -415,6 +411,13 @@ def zaplast_procesar(pdf_files: list[tuple[str, bytes]], masterdata: pd.DataFram
     df["ZONA"] = pd.to_numeric(df["ZONA"], errors="coerce")
     df = df.sort_values(["ZONA", "Cliente", "Código Artículo"]).reset_index(drop=True)
     return df, sin_match
+
+
+def zaplast_procesar(pdf_files: list[tuple[str, bytes]], masterdata: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
+    all_rows = []
+    for filename, file_bytes in pdf_files:
+        all_rows.extend(zaplast_parse_pdf(file_bytes, filename))
+    return zaplast_merge(all_rows, masterdata)
 
 
 def _thin_z():

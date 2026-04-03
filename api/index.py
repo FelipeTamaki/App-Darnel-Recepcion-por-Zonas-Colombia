@@ -12,6 +12,8 @@ from shared_logic import (
     darnel_leer_pedido,
     zaplast_generar_excel,
     zaplast_load_masterdata,
+    zaplast_merge,
+    zaplast_parse_pdf,
     zaplast_procesar,
 )
 
@@ -65,18 +67,30 @@ def process_darnel():
         return _json_error(str(exc), 500)
 
 
-@app.post("/api/process/zaplast")
-def process_zaplast():
-    pdf_files = request.files.getlist("pdfs")
-    if not pdf_files:
-        return _json_error("Subí al menos un PDF de Nota de Pedido.")
+@app.post("/api/process/zaplast/parse")
+def parse_zaplast():
+    pdf_file = request.files.get("pdf")
+    if not pdf_file:
+        return _json_error("Subí un PDF de Nota de Pedido.")
+
+    try:
+        rows = zaplast_parse_pdf(pdf_file.read(), pdf_file.filename or "archivo.pdf")
+        return jsonify({"ok": True, "rows": rows})
+    except Exception as exc:
+        return _json_error(str(exc), 500)
+
+
+@app.post("/api/process/zaplast/generate")
+def generate_zaplast():
+    data = request.get_json(silent=True)
+    if not data or not data.get("rows"):
+        return _json_error("No se recibieron artículos para generar el reporte.")
 
     try:
         masterdata = zaplast_load_masterdata()
-        payload_files = [(file.filename or "archivo.pdf", file.read()) for file in pdf_files]
-        df, sin_match = zaplast_procesar(payload_files, masterdata)
+        df, sin_match = zaplast_merge(data["rows"], masterdata)
         if df.empty:
-            return _json_error("No se encontraron artículos en los PDFs subidos.", 422)
+            return _json_error("No se encontraron artículos válidos en los PDFs subidos.", 422)
 
         workbook_bytes = zaplast_generar_excel(df)
         preview = build_zaplast_preview(df)
