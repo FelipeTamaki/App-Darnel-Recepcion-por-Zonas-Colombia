@@ -630,6 +630,24 @@ input[type="file"]::file-selector-button {
   font-size: 0.82rem;
 }
 
+/* ─── FOOTER ──────────────────────────────────────── */
+
+.app-footer {
+  margin-top: 60px;
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 0.78rem;
+  font-family: "Azeret Mono", monospace;
+  letter-spacing: 0.06em;
+}
+
+.app-footer span {
+  color: var(--text-faint);
+  opacity: 0.6;
+}
+
 /* ─── ANIMATION ───────────────────────────────────── */
 
 @keyframes panel-rise {
